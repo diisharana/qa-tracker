@@ -367,7 +367,7 @@ tr:hover td { background: rgba(255,255,255,0.015); }
         <span class="nav-icon">◎</span><span class="nav-label"> AI Time</span>
       </div>
       <div class="nav-item" onclick="nav('study')">
-        <span class="nav-icon">◷</span><span class="nav-label"> Study Log</span>
+        <span class="nav-icon">◷</span><span class="nav-label"> Learning Hours</span>
       </div>
       <div class="nav-item" onclick="nav('about')">
         <span class="nav-icon">♡</span><span class="nav-label"> About</span>
@@ -416,7 +416,7 @@ tr:hover td { background: rgba(255,255,255,0.015); }
         <!-- Study breakdown -->
         <div class="card">
           <div class="card-header">
-            <span class="card-title">Study topics</span>
+            <span class="card-title">Learning topics</span>
             <button class="btn btn-ghost btn-sm" onclick="nav('study')">View all</button>
           </div>
           <div id="studyBreakdown"></div>
@@ -666,7 +666,7 @@ tr:hover td { background: rgba(255,255,255,0.015); }
     <div class="page" id="page-study">
       <div class="page-header">
         <div>
-          <div class="page-title">Study Log</div>
+          <div class="page-title">Learning Hours</div>
           <div class="page-sub">Track learning outside of work hours</div>
         </div>
       </div>
@@ -687,6 +687,7 @@ tr:hover td { background: rgba(255,255,255,0.015); }
                 <option value="DevOps">DevOps</option>
                 <option value="Security">Security</option>
                 <option value="AI / ML">AI / ML</option>
+                <option value="Product Management">Product Management</option>
                 <option value="Soft skills">Soft skills</option>
                 <option value="Other">Other</option>
               </select>
@@ -1031,7 +1032,7 @@ function renderOverview() {
   document.getElementById('overviewStats').innerHTML = `
     <div class="stat-card"><div class="stat-label">Total bugs</div><div class="stat-value accent">${totalBugs}</div><div class="stat-delta">${openBugs} open</div></div>
     <div class="stat-card"><div class="stat-label">AI hours</div><div class="stat-value green">${totalAI}h</div><div class="stat-delta">${aiSessions.length} sessions</div></div>
-    <div class="stat-card"><div class="stat-label">Study hours</div><div class="stat-value amber">${totalStudy}h</div><div class="stat-delta">${studySessions.length} sessions</div></div>
+    <div class="stat-card"><div class="stat-label">Learning hours</div><div class="stat-value amber">${totalStudy}h</div><div class="stat-delta">${studySessions.length} sessions</div></div>
     <div class="stat-card"><div class="stat-label">Resolved bugs</div><div class="stat-value" style="color:var(--green)">${bugs.filter(b=>b.status==='resolved').length}</div><div class="stat-delta">of ${totalBugs} total</div></div>
   `;
 
@@ -1078,7 +1079,7 @@ function renderAICharts() {
 function renderStudyCharts() {
   barChart(document.getElementById('studyByCategory'), groupBy(studySessions, 'category', 'hours'), 'var(--amber)');
   const sr = document.getElementById('studyRecent');
-  const catColors = { Testing:'var(--blue)', Programming:'var(--accent)', DevOps:'var(--green)', Security:'var(--red)', 'AI / ML':'var(--amber)', 'Soft skills':'var(--green-dim)', Other:'var(--muted)' };
+  const catColors = { Testing:'var(--blue)', Programming:'var(--accent)', DevOps:'var(--green)', Security:'var(--red)', 'AI / ML':'var(--amber)', 'Product Management':'var(--accent)', 'Soft skills':'var(--green-dim)', Other:'var(--muted)' };
   const recent = studySessions.slice(0, 6);
   if (!recent.length) { sr.innerHTML = `<div class="empty"><div class="empty-icon">◷</div>No sessions yet.</div>`; return; }
   sr.innerHTML = recent.map(s => `
