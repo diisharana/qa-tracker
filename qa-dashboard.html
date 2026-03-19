@@ -1140,18 +1140,83 @@ function renderCareerList() {
   const priorityColors = { Critical:'var(--red)', High:'var(--amber)', Medium:'var(--blue)', Low:'var(--green)' };
   const priorityBg = { Critical:'var(--red-dim)', High:'var(--amber-dim)', Medium:'var(--blue-dim)', Low:'var(--green-dim)' };
   el.innerHTML = careerEntries.map(e => `
-    <div class="card" style="margin-bottom:16px">
+    <div class="card" style="margin-bottom:16px" id="career-card-${e.id}">
       <div class="card-header" style="align-items:flex-start">
         <div>
           <div style="font-size:15px;font-weight:500">${esc(e.company)}</div>
           <div style="font-size:12px;color:var(--accent);margin-top:3px">${esc(e.role)}${e.period ? ` · <span style="color:var(--muted)">${esc(e.period)}</span>` : ''}</div>
         </div>
-        <button class="btn btn-danger btn-sm" onclick="deleteCareerEntry(${e.id})">Delete</button>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="editCareerEntry(${e.id})">✎ Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteCareerEntry(${e.id})">Delete</button>
+        </div>
       </div>
-      ${e.priority ? `<div style="display:inline-flex;align-items:center;gap:6px;background:${priorityBg[e.priority]||'var(--blue-dim)'};border-radius:20px;padding:4px 12px;font-size:12px;color:${priorityColors[e.priority]||'var(--blue)'};margin-bottom:12px">● ${esc(e.priority)} Priority</div>` : ''}
-      ${e.highlights ? `<div style="font-size:13px;color:var(--muted);line-height:1.75;white-space:pre-wrap">${esc(e.highlights)}</div>` : ''}
+      <div id="career-view-${e.id}">
+        ${e.priority ? `<div style="display:inline-flex;align-items:center;gap:6px;background:${priorityBg[e.priority]||'var(--blue-dim)'};border-radius:20px;padding:4px 12px;font-size:12px;color:${priorityColors[e.priority]||'var(--blue)'};margin-bottom:12px">● ${esc(e.priority)} Priority</div>` : ''}
+        ${e.highlights ? `<div style="font-size:13px;color:var(--muted);line-height:1.75;white-space:pre-wrap">${esc(e.highlights)}</div>` : ''}
+      </div>
+      <div id="career-edit-${e.id}" style="display:none">
+        <div class="form-grid" style="margin-top:12px">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Company / Project</label>
+              <input type="text" id="edit-company-${e.id}" value="${esc(e.company)}"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Role</label>
+              <input type="text" id="edit-role-${e.id}" value="${esc(e.role)}"/>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Period</label>
+              <input type="text" id="edit-period-${e.id}" value="${esc(e.period||'')}"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Priority</label>
+              <select id="edit-priority-${e.id}">
+                <option ${e.priority==='Critical'?'selected':''}>Critical</option>
+                <option ${e.priority==='High'?'selected':''}>High</option>
+                <option ${e.priority==='Medium'?'selected':''}>Medium</option>
+                <option ${e.priority==='Low'?'selected':''}>Low</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Highlights</label>
+            <textarea id="edit-highlights-${e.id}">${esc(e.highlights||'')}</textarea>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-primary" onclick="saveCareerEdit(${e.id})">Save</button>
+            <button class="btn btn-ghost" onclick="cancelCareerEdit(${e.id})">Cancel</button>
+          </div>
+        </div>
+      </div>
     </div>
   `).join('');
+}
+
+function editCareerEntry(id) {
+  document.getElementById('career-view-' + id).style.display = 'none';
+  document.getElementById('career-edit-' + id).style.display = 'block';
+}
+
+function cancelCareerEdit(id) {
+  document.getElementById('career-view-' + id).style.display = 'block';
+  document.getElementById('career-edit-' + id).style.display = 'none';
+}
+
+function saveCareerEdit(id) {
+  const entry = careerEntries.find(e => e.id === id);
+  if (!entry) return;
+  entry.company    = document.getElementById('edit-company-' + id).value.trim();
+  entry.role       = document.getElementById('edit-role-' + id).value.trim();
+  entry.period     = document.getElementById('edit-period-' + id).value.trim();
+  entry.priority   = document.getElementById('edit-priority-' + id).value;
+  entry.highlights = document.getElementById('edit-highlights-' + id).value.trim();
+  store.set('qa_career', careerEntries);
+  toast('Entry updated ✓');
+  renderCareerList();
 }
 
 // ── Tab switching ─────────────────────────────────────────
