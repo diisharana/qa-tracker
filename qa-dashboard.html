@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>QA Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #0f0f11;
+  --surface: #18181c;
+  --surface2: #202026;
+  --border: rgba(255,255,255,0.07);
+  --border-hover: rgba(255,255,255,0.14);
+  --text: #e8e8ec;
+  --muted: #7a7a88;
+  --accent: #7c6dfa;
+  --accent-dim: rgba(124,109,250,0.15);
+  --green: #34d399;
+  --green-dim: rgba(52,211,153,0.12);
+  --amber: #fbbf24;
+  --amber-dim: rgba(251,191,36,0.12);
+  --red: #f87171;
+  --red-dim: rgba(248,113,113,0.12);
+  --blue: #60a5fa;
+  --blue-dim: rgba(96,165,250,0.12);
+  --radius: 10px;
+  --radius-sm: 6px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+}
+
+/* Layout */
+.app { display: flex; min-height: 100vh; }
+
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 28px 0 24px;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 10;
+}
+.logo {
+  padding: 0 20px 28px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.logo-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+.logo-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+  letter-spacing: 0.03em;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 20px;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 400;
+  transition: all 0.18s;
+  border-left: 2px solid transparent;
+}
+.nav-item:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+.nav-item.active { color: var(--text); border-left-color: var(--accent); background: rgba(124,109,250,0.08); }
+.nav-icon { font-size: 15px; width: 18px; text-align: center; }
+.nav-spacer { flex: 1; }
+.nav-date {
+  padding: 0 20px;
+  font-size: 11px;
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+}
+
+/* Main */
+.main {
+  margin-left: 220px;
+  flex: 1;
+  padding: 36px 40px;
+  max-width: calc(100vw - 220px);
+}
+.page { display: none; }
+.page.active { display: block; }
+
+/* Page header */
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+.page-title { font-size: 22px; font-weight: 500; letter-spacing: -0.02em; }
+.page-sub { font-size: 13px; color: var(--muted); margin-top: 3px; }
+
+/* Stat cards */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  margin-bottom: 32px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+}
+.stat-label { font-size: 11px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px; }
+.stat-value { font-size: 28px; font-weight: 500; font-family: 'DM Mono', monospace; letter-spacing: -0.02em; }
+.stat-value.accent { color: var(--accent); }
+.stat-value.green { color: var(--green); }
+.stat-value.amber { color: var(--amber); }
+.stat-value.red { color: var(--red); }
+.stat-delta { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  margin-bottom: 20px;
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.card-title { font-size: 13px; font-weight: 500; letter-spacing: 0.01em; }
+
+/* Forms */
+.form-grid { display: grid; gap: 14px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-label { font-size: 11px; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; }
+input, select, textarea {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color 0.18s;
+  width: 100%;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+select option { background: var(--surface2); }
+textarea { resize: vertical; min-height: 72px; }
+
+/* Buttons */
+.btn {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 9px 20px;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: #9083fb; }
+.btn-ghost {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { border-color: var(--border-hover); color: var(--text); }
+.btn-danger { background: var(--red-dim); color: var(--red); border: 1px solid transparent; }
+.btn-danger:hover { border-color: var(--red); }
+.btn-sm { padding: 5px 12px; font-size: 12px; }
+
+/* Table */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0 12px 12px;
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 11px 12px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.015); }
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+}
+.badge-critical { background: var(--red-dim); color: var(--red); }
+.badge-high     { background: var(--amber-dim); color: var(--amber); }
+.badge-medium   { background: var(--blue-dim); color: var(--blue); }
+.badge-low      { background: var(--green-dim); color: var(--green); }
+.badge-open     { background: var(--red-dim); color: var(--red); }
+.badge-progress { background: var(--amber-dim); color: var(--amber); }
+.badge-resolved { background: var(--green-dim); color: var(--green); }
+
+/* Mini bar chart */
+.bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.bar-label { font-size: 12px; color: var(--muted); width: 90px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-track { flex: 1; height: 6px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+.bar-val { font-size: 12px; color: var(--muted); font-family: 'DM Mono', monospace; width: 42px; text-align: right; }
+
+/* Study list */
+.study-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.study-item:last-child { border-bottom: none; }
+.study-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.study-info { flex: 1; }
+.study-topic { font-size: 13px; font-weight: 400; }
+.study-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.study-hours { font-size: 13px; font-family: 'DM Mono', monospace; color: var(--muted); }
+
+/* Empty state */
+.empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.empty-icon { font-size: 28px; margin-bottom: 10px; opacity: 0.4; }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 28px; right: 28px;
+  background: var(--surface2);
+  border: 1px solid var(--border-hover);
+  border-radius: var(--radius);
+  padding: 12px 18px;
+  font-size: 13px;
+  color: var(--text);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all 0.25s;
+  pointer-events: none;
+  z-index: 999;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* Two-col layout */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 900px) {
+  .two-col { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  .main { padding: 24px 20px; }
+}
+
+/* Overview mini widgets */
+.activity-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+.heatmap { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 10px; }
+.heatmap-cell {
+  aspect-ratio: 1;
+  border-radius: 3px;
+  background: var(--surface2);
+  cursor: default;
+}
+.hm-1 { background: rgba(124,109,250,0.25); }
+.hm-2 { background: rgba(124,109,250,0.5); }
+.hm-3 { background: rgba(124,109,250,0.75); }
+.hm-4 { background: rgba(124,109,250,1); }
+
+.section-title {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-title">QA Tracker</div>
+      <div class="logo-sub">Personal Dashboard</div>
+    </div>
+    <nav>
+      <div class="nav-item active" onclick="nav('overview')">
+        <span class="nav-icon">◈</span> Overview
+      </div>
+      <div class="nav-item" onclick="nav('bugs')">
+        <span class="nav-icon">⚡</span> Bug Log
+      </div>
+      <div class="nav-item" onclick="nav('ai')">
+        <span class="nav-icon">◎</span> AI Time
+      </div>
+      <div class="nav-item" onclick="nav('study')">
+        <span class="nav-icon">◷</span> Study Log
+      </div>
+    </nav>
+    <div class="nav-spacer"></div>
+    <div class="nav-date" id="sidebarDate"></div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- ======== OVERVIEW ======== -->
+    <div class="page active" id="page-overview">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Overview</div>
+          <div class="page-sub" id="todayLabel"></div>
+        </div>
+      </div>
+
+      <div class="stat-grid" id="overviewStats"></div>
+
+      <div class="two-col">
+        <!-- Recent bugs -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Recent bugs</span>
+            <button class="btn btn-ghost btn-sm" onclick="nav('bugs')">View all</button>
+          </div>
+          <div id="recentBugs"></div>
+        </div>
+
+        <!-- AI usage breakdown -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">AI usage by tool</span>
+            <button class="btn btn-ghost btn-sm" onclick="nav('ai')">View all</button>
+          </div>
+          <div id="aiBreakdown"></div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <!-- Study breakdown -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Study topics</span>
+            <button class="btn btn-ghost btn-sm" onclick="nav('study')">View all</button>
+          </div>
+          <div id="studyBreakdown"></div>
+        </div>
+
+        <!-- Activity heatmap (last 28 days) -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Activity — last 28 days</span>
+          </div>
+          <div class="section-title">Entries logged</div>
+          <div class="heatmap" id="heatmap"></div>
+          <div style="display:flex;gap:16px;margin-top:12px">
+            <span style="font-size:11px;color:var(--muted)"><span class="activity-dot" style="background:var(--surface2)"></span>None</span>
+            <span style="font-size:11px;color:var(--muted)"><span class="activity-dot" style="background:rgba(124,109,250,0.3)"></span>Low</span>
+            <span style="font-size:11px;color:var(--muted)"><span class="activity-dot" style="background:rgba(124,109,250,0.65)"></span>Med</span>
+            <span style="font-size:11px;color:var(--muted)"><span class="activity-dot" style="background:var(--accent)"></span>High</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== BUG LOG ======== -->
+    <div class="page" id="page-bugs">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Bug Log</div>
+          <div class="page-sub">Track bugs found during QA</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">Log a new bug</span></div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Bug title</label>
+            <input type="text" id="bugTitle" placeholder="Short description of the bug"/>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Severity</label>
+              <select id="bugSeverity">
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium" selected>Medium</option>
+                <option value="low">Low</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <select id="bugStatus">
+                <option value="open">Open</option>
+                <option value="progress">In Progress</option>
+                <option value="resolved">Resolved</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Notes (optional)</label>
+            <textarea id="bugNotes" placeholder="Steps to reproduce, module affected, etc."></textarea>
+          </div>
+          <div>
+            <button class="btn btn-primary" onclick="addBug()">+ Log bug</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+        <select id="filterSeverity" style="width:auto" onchange="renderBugTable()">
+          <option value="">All severities</option>
+          <option value="critical">Critical</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+        <select id="filterStatus" style="width:auto" onchange="renderBugTable()">
+          <option value="">All statuses</option>
+          <option value="open">Open</option>
+          <option value="progress">In Progress</option>
+          <option value="resolved">Resolved</option>
+        </select>
+      </div>
+
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Severity</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="bugTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== AI TIME ======== -->
+    <div class="page" id="page-ai">
+      <div class="page-header">
+        <div>
+          <div class="page-title">AI Time</div>
+          <div class="page-sub">Track time spent using AI tools at work</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">Log AI session</span></div>
+        <div class="form-grid">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">AI Tool</label>
+              <select id="aiTool">
+                <option value="Claude">Claude</option>
+                <option value="ChatGPT">ChatGPT</option>
+                <option value="GitHub Copilot">GitHub Copilot</option>
+                <option value="Gemini">Gemini</option>
+                <option value="Cursor">Cursor</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Hours spent</label>
+              <input type="number" id="aiHours" placeholder="e.g. 1.5" min="0.1" max="24" step="0.25"/>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Task category</label>
+              <select id="aiCategory">
+                <option value="Test writing">Test writing</option>
+                <option value="Bug investigation">Bug investigation</option>
+                <option value="Code review">Code review</option>
+                <option value="Documentation">Documentation</option>
+                <option value="Research">Research</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date</label>
+              <input type="date" id="aiDate"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Notes (optional)</label>
+            <input type="text" id="aiNotes" placeholder="What were you working on?"/>
+          </div>
+          <div>
+            <button class="btn btn-primary" onclick="addAI()">+ Log session</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header"><span class="card-title">By tool</span></div>
+          <div id="aiByTool"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">By task category</span></div>
+          <div id="aiByCategory"></div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="padding:18px 20px 0"><span class="card-title">All sessions</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Tool</th><th>Category</th><th>Hours</th><th>Date</th><th>Notes</th><th></th></tr>
+            </thead>
+            <tbody id="aiTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== STUDY LOG ======== -->
+    <div class="page" id="page-study">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Study Log</div>
+          <div class="page-sub">Track learning outside of work hours</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">Log a study session</span></div>
+        <div class="form-grid">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Topic</label>
+              <input type="text" id="studyTopic" placeholder="What did you study?"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Category</label>
+              <select id="studyCategory">
+                <option value="Testing">Testing</option>
+                <option value="Programming">Programming</option>
+                <option value="DevOps">DevOps</option>
+                <option value="Security">Security</option>
+                <option value="AI / ML">AI / ML</option>
+                <option value="Soft skills">Soft skills</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Hours spent</label>
+              <input type="number" id="studyHours" placeholder="e.g. 2" min="0.1" max="24" step="0.25"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date</label>
+              <input type="date" id="studyDate"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Resource / notes (optional)</label>
+            <input type="text" id="studyNotes" placeholder="Book, course, article..."/>
+          </div>
+          <div>
+            <button class="btn btn-primary" onclick="addStudy()">+ Log session</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Hours by category</span></div>
+          <div id="studyByCategory"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Recent sessions</span></div>
+          <div id="studyRecent"></div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="padding:18px 20px 0"><span class="card-title">All sessions</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Topic</th><th>Category</th><th>Hours</th><th>Date</th><th>Notes</th><th></th></tr>
+            </thead>
+            <tbody id="studyTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Storage ──────────────────────────────────────────────
+const store = {
+  get: k => JSON.parse(localStorage.getItem(k) || '[]'),
+  set: (k, v) => localStorage.setItem(k, JSON.stringify(v)),
+};
+
+let bugs = store.get('qa_bugs');
+let aiSessions = store.get('qa_ai');
+let studySessions = store.get('qa_study');
+
+function save() {
+  store.set('qa_bugs', bugs);
+  store.set('qa_ai', aiSessions);
+  store.set('qa_study', studySessions);
+}
+
+// ── Navigation ───────────────────────────────────────────
+function nav(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.textContent.trim().toLowerCase().includes(page === 'overview' ? 'overview' : page === 'bugs' ? 'bug' : page === 'ai' ? 'ai' : 'study'))
+      n.classList.add('active');
+  });
+  renderAll();
+}
+
+// ── Dates ────────────────────────────────────────────────
+const todayStr = () => new Date().toISOString().split('T')[0];
+const fmtDate = d => new Date(d + 'T00:00:00').toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' });
+
+function initDates() {
+  const now = new Date();
+  const opts = { weekday: 'long', month: 'long', day: 'numeric' };
+  document.getElementById('todayLabel').textContent = now.toLocaleDateString('en-CA', opts);
+  document.getElementById('sidebarDate').textContent = now.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' });
+  ['aiDate', 'studyDate'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = todayStr();
+  });
+}
+
+// ── Toast ────────────────────────────────────────────────
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── Bug Log ──────────────────────────────────────────────
+function addBug() {
+  const title = document.getElementById('bugTitle').value.trim();
+  if (!title) return toast('Please enter a bug title.');
+  bugs.unshift({
+    id: Date.now(),
+    title,
+    severity: document.getElementById('bugSeverity').value,
+    status: document.getElementById('bugStatus').value,
+    notes: document.getElementById('bugNotes').value.trim(),
+    date: todayStr(),
+  });
+  save();
+  document.getElementById('bugTitle').value = '';
+  document.getElementById('bugNotes').value = '';
+  toast('Bug logged ✓');
+  renderAll();
+}
+
+function deleteBug(id) {
+  bugs = bugs.filter(b => b.id !== id);
+  save(); renderAll();
+}
+
+function renderBugTable() {
+  const sv = document.getElementById('filterSeverity')?.value || '';
+  const st = document.getElementById('filterStatus')?.value || '';
+  const filtered = bugs.filter(b =>
+    (!sv || b.severity === sv) && (!st || b.status === st)
+  );
+  const tbody = document.getElementById('bugTableBody');
+  if (!tbody) return;
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-icon">⚡</div>No bugs logged yet.</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = filtered.map(b => `
+    <tr>
+      <td>
+        <div style="font-weight:400">${esc(b.title)}</div>
+        ${b.notes ? `<div style="font-size:11px;color:var(--muted);margin-top:2px">${esc(b.notes.substring(0,80))}${b.notes.length>80?'…':''}</div>` : ''}
+      </td>
+      <td><span class="badge badge-${b.severity}">${cap(b.severity)}</span></td>
+      <td><span class="badge badge-${b.status}">${b.status === 'progress' ? 'In Progress' : cap(b.status)}</span></td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)">${fmtDate(b.date)}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteBug(${b.id})">Delete</button></td>
+    </tr>
+  `).join('');
+}
+
+// ── AI Sessions ──────────────────────────────────────────
+function addAI() {
+  const hours = parseFloat(document.getElementById('aiHours').value);
+  if (!hours || hours <= 0) return toast('Please enter hours spent.');
+  aiSessions.unshift({
+    id: Date.now(),
+    tool: document.getElementById('aiTool').value,
+    hours,
+    category: document.getElementById('aiCategory').value,
+    date: document.getElementById('aiDate').value || todayStr(),
+    notes: document.getElementById('aiNotes').value.trim(),
+  });
+  save();
+  document.getElementById('aiHours').value = '';
+  document.getElementById('aiNotes').value = '';
+  toast('AI session logged ✓');
+  renderAll();
+}
+
+function deleteAI(id) {
+  aiSessions = aiSessions.filter(s => s.id !== id);
+  save(); renderAll();
+}
+
+function renderAITable() {
+  const tbody = document.getElementById('aiTableBody');
+  if (!tbody) return;
+  if (!aiSessions.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty"><div class="empty-icon">◎</div>No AI sessions logged yet.</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = aiSessions.map(s => `
+    <tr>
+      <td>${esc(s.tool)}</td>
+      <td style="color:var(--muted)">${esc(s.category)}</td>
+      <td style="font-family:'DM Mono',monospace">${s.hours}h</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)">${fmtDate(s.date)}</td>
+      <td style="color:var(--muted);font-size:12px">${esc(s.notes||'—')}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteAI(${s.id})">Delete</button></td>
+    </tr>
+  `).join('');
+}
+
+// ── Study Sessions ───────────────────────────────────────
+function addStudy() {
+  const topic = document.getElementById('studyTopic').value.trim();
+  const hours = parseFloat(document.getElementById('studyHours').value);
+  if (!topic) return toast('Please enter a topic.');
+  if (!hours || hours <= 0) return toast('Please enter hours spent.');
+  studySessions.unshift({
+    id: Date.now(),
+    topic,
+    category: document.getElementById('studyCategory').value,
+    hours,
+    date: document.getElementById('studyDate').value || todayStr(),
+    notes: document.getElementById('studyNotes').value.trim(),
+  });
+  save();
+  document.getElementById('studyTopic').value = '';
+  document.getElementById('studyHours').value = '';
+  document.getElementById('studyNotes').value = '';
+  toast('Study session logged ✓');
+  renderAll();
+}
+
+function deleteStudy(id) {
+  studySessions = studySessions.filter(s => s.id !== id);
+  save(); renderAll();
+}
+
+function renderStudyTable() {
+  const tbody = document.getElementById('studyTableBody');
+  if (!tbody) return;
+  if (!studySessions.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty"><div class="empty-icon">◷</div>No study sessions logged yet.</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = studySessions.map(s => `
+    <tr>
+      <td>${esc(s.topic)}</td>
+      <td style="color:var(--muted)">${esc(s.category)}</td>
+      <td style="font-family:'DM Mono',monospace">${s.hours}h</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)">${fmtDate(s.date)}</td>
+      <td style="color:var(--muted);font-size:12px">${esc(s.notes||'—')}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteStudy(${s.id})">Delete</button></td>
+    </tr>
+  `).join('');
+}
+
+// ── Bar chart helper ─────────────────────────────────────
+function barChart(el, data, color) {
+  if (!el) return;
+  if (!data.length) { el.innerHTML = `<div class="empty" style="padding:20px 0"><div class="empty-icon" style="font-size:20px">—</div>Nothing yet.</div>`; return; }
+  const max = Math.max(...data.map(d => d.val));
+  el.innerHTML = data.map(d => `
+    <div class="bar-row">
+      <div class="bar-label" title="${esc(d.label)}">${esc(d.label)}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${max?Math.round(d.val/max*100):0}%;background:${color}"></div></div>
+      <div class="bar-val">${d.val}h</div>
+    </div>
+  `).join('');
+}
+
+function groupBy(arr, key, valKey) {
+  const map = {};
+  arr.forEach(a => {
+    map[a[key]] = (map[a[key]] || 0) + a[valKey];
+  });
+  return Object.entries(map)
+    .map(([label, val]) => ({ label, val: Math.round(val * 10) / 10 }))
+    .sort((a, b) => b.val - a.val);
+}
+
+// ── Overview ─────────────────────────────────────────────
+function renderOverview() {
+  // Stats
+  const totalBugs = bugs.length;
+  const openBugs = bugs.filter(b => b.status === 'open').length;
+  const totalAI = Math.round(aiSessions.reduce((s, a) => s + a.hours, 0) * 10) / 10;
+  const totalStudy = Math.round(studySessions.reduce((s, a) => s + a.hours, 0) * 10) / 10;
+  document.getElementById('overviewStats').innerHTML = `
+    <div class="stat-card"><div class="stat-label">Total bugs</div><div class="stat-value accent">${totalBugs}</div><div class="stat-delta">${openBugs} open</div></div>
+    <div class="stat-card"><div class="stat-label">AI hours</div><div class="stat-value green">${totalAI}h</div><div class="stat-delta">${aiSessions.length} sessions</div></div>
+    <div class="stat-card"><div class="stat-label">Study hours</div><div class="stat-value amber">${totalStudy}h</div><div class="stat-delta">${studySessions.length} sessions</div></div>
+    <div class="stat-card"><div class="stat-label">Resolved bugs</div><div class="stat-value" style="color:var(--green)">${bugs.filter(b=>b.status==='resolved').length}</div><div class="stat-delta">of ${totalBugs} total</div></div>
+  `;
+
+  // Recent bugs
+  const rb = document.getElementById('recentBugs');
+  const recent = bugs.slice(0, 5);
+  if (!recent.length) { rb.innerHTML = `<div class="empty"><div class="empty-icon">⚡</div>No bugs yet.</div>`; }
+  else rb.innerHTML = recent.map(b => `
+    <div class="study-item">
+      <div class="study-dot" style="background:${{critical:'var(--red)',high:'var(--amber)',medium:'var(--blue)',low:'var(--green)'}[b.severity]}"></div>
+      <div class="study-info"><div class="study-topic">${esc(b.title)}</div><div class="study-meta">${fmtDate(b.date)}</div></div>
+      <span class="badge badge-${b.status}">${b.status==='progress'?'In Progress':cap(b.status)}</span>
+    </div>
+  `).join('');
+
+  // AI breakdown
+  barChart(document.getElementById('aiBreakdown'), groupBy(aiSessions, 'tool', 'hours'), 'var(--accent)');
+
+  // Study breakdown
+  barChart(document.getElementById('studyBreakdown'), groupBy(studySessions, 'category', 'hours'), 'var(--amber)');
+
+  // Heatmap
+  const hm = document.getElementById('heatmap');
+  const counts = {};
+  [...bugs, ...aiSessions, ...studySessions].forEach(e => {
+    counts[e.date] = (counts[e.date] || 0) + 1;
+  });
+  const cells = [];
+  for (let i = 27; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const k = d.toISOString().split('T')[0];
+    const c = counts[k] || 0;
+    const cls = c === 0 ? '' : c === 1 ? 'hm-1' : c <= 3 ? 'hm-2' : c <= 5 ? 'hm-3' : 'hm-4';
+    cells.push(`<div class="heatmap-cell ${cls}" title="${k}: ${c} entries"></div>`);
+  }
+  hm.innerHTML = cells.join('');
+}
+
+function renderAICharts() {
+  barChart(document.getElementById('aiByTool'), groupBy(aiSessions, 'tool', 'hours'), 'var(--accent)');
+  barChart(document.getElementById('aiByCategory'), groupBy(aiSessions, 'category', 'hours'), 'var(--green)');
+}
+
+function renderStudyCharts() {
+  barChart(document.getElementById('studyByCategory'), groupBy(studySessions, 'category', 'hours'), 'var(--amber)');
+  const sr = document.getElementById('studyRecent');
+  const catColors = { Testing:'var(--blue)', Programming:'var(--accent)', DevOps:'var(--green)', Security:'var(--red)', 'AI / ML':'var(--amber)', 'Soft skills':'var(--green-dim)', Other:'var(--muted)' };
+  const recent = studySessions.slice(0, 6);
+  if (!recent.length) { sr.innerHTML = `<div class="empty"><div class="empty-icon">◷</div>No sessions yet.</div>`; return; }
+  sr.innerHTML = recent.map(s => `
+    <div class="study-item">
+      <div class="study-dot" style="background:${catColors[s.category]||'var(--muted)'}"></div>
+      <div class="study-info"><div class="study-topic">${esc(s.topic)}</div><div class="study-meta">${esc(s.category)} · ${fmtDate(s.date)}</div></div>
+      <div class="study-hours">${s.hours}h</div>
+    </div>
+  `).join('');
+}
+
+function renderAll() {
+  renderOverview();
+  renderBugTable();
+  renderAITable();
+  renderStudyTable();
+  renderAICharts();
+  renderStudyCharts();
+}
+
+// ── Utils ────────────────────────────────────────────────
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+// ── Init ─────────────────────────────────────────────────
+initDates();
+renderAll();
+</script>
+</body>
+</html>
