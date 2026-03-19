@@ -50,37 +50,12 @@ body {
   position: fixed;
   top: 0; left: 0; bottom: 0;
   z-index: 10;
-  transition: width 0.25s ease;
-  overflow: hidden;
 }
-.sidebar.collapsed { width: 52px; }
-.sidebar.collapsed .logo-title,
-.sidebar.collapsed .logo-sub,
-.sidebar.collapsed .nav-label,
-.sidebar.collapsed .nav-date,
-.sidebar.collapsed .sidebar-footer { display: none; }
-.sidebar.collapsed .nav-item { padding: 9px 0; justify-content: center; }
-.sidebar.collapsed .logo { padding: 0 0 28px; display: flex; justify-content: center; }
-.toggle-btn {
-  background: transparent;
-  border: none;
-  color: var(--muted);
-  cursor: pointer;
-  font-size: 16px;
-  padding: 0;
-  line-height: 1;
-  transition: color 0.18s;
-}
-.toggle-btn:hover { color: var(--text); }
 .logo {
   padding: 0 20px 28px;
   border-bottom: 1px solid var(--border);
   margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 }
-.logo-text { display: flex; flex-direction: column; }
 .logo-title {
   font-size: 15px;
   font-weight: 500;
@@ -122,11 +97,6 @@ body {
   flex: 1;
   padding: 36px 40px;
   max-width: calc(100vw - 220px);
-  transition: margin-left 0.25s ease, max-width 0.25s ease;
-}
-.sidebar.collapsed ~ .main {
-  margin-left: 52px;
-  max-width: calc(100vw - 52px);
 }
 .page { display: none; }
 .page.active { display: block; }
@@ -348,34 +318,27 @@ tr:hover td { background: rgba(255,255,255,0.015); }
 
 <div class="app">
   <!-- Sidebar -->
-  <aside class="sidebar" id="sidebar">
+  <aside class="sidebar">
     <div class="logo">
-      <div class="logo-text">
-        <div class="logo-title">QA Tracker</div>
-        <div class="logo-sub">Personal Dashboard</div>
-      </div>
-      <button class="toggle-btn" onclick="toggleSidebar()" title="Collapse sidebar">‹</button>
+      <div class="logo-title">QA Tracker</div>
+      <div class="logo-sub">Personal Dashboard</div>
     </div>
     <nav>
       <div class="nav-item active" onclick="nav('overview')">
-        <span class="nav-icon">◈</span><span class="nav-label"> Overview</span>
+        <span class="nav-icon">◈</span> Overview
       </div>
       <div class="nav-item" onclick="nav('bugs')">
-        <span class="nav-icon">⚡</span><span class="nav-label"> Bug Log</span>
+        <span class="nav-icon">⚡</span> Bug Log
       </div>
       <div class="nav-item" onclick="nav('ai')">
-        <span class="nav-icon">◎</span><span class="nav-label"> AI Time</span>
+        <span class="nav-icon">◎</span> AI Time
       </div>
       <div class="nav-item" onclick="nav('study')">
-        <span class="nav-icon">◷</span><span class="nav-label"> Study Log</span>
-      </div>
-      <div class="nav-item" onclick="nav('about')">
-        <span class="nav-icon">♡</span><span class="nav-label"> About</span>
+        <span class="nav-icon">◷</span> Study Log
       </div>
     </nav>
     <div class="nav-spacer"></div>
     <div class="nav-date" id="sidebarDate"></div>
-    <div class="sidebar-footer" style="padding:10px 20px 0;font-size:10px;color:var(--muted);line-height:1.6;opacity:0.7">Created by Disha Rana<br>© All rights reserved</div>
   </aside>
 
   <!-- Main -->
@@ -448,15 +411,6 @@ tr:hover td { background: rgba(255,255,255,0.015); }
         </div>
       </div>
 
-      <!-- Tabs -->
-      <div style="display:flex;gap:0;margin-bottom:28px;border-bottom:1px solid var(--border)">
-        <button class="bug-tab active" onclick="switchBugTab('log')" id="tab-log" style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:10px 22px;background:transparent;border:none;border-bottom:2px solid var(--accent);color:var(--text);cursor:pointer;margin-bottom:-1px;transition:all 0.18s">Bug Log</button>
-        <button class="bug-tab" onclick="switchBugTab('career')" id="tab-career" style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:400;padding:10px 22px;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;margin-bottom:-1px;transition:all 0.18s">Career History</button>
-      </div>
-
-      <!-- Bug Log tab content -->
-      <div id="bugtab-log">
-
       <div class="card">
         <div class="card-header"><span class="card-title">Log a new bug</span></div>
         <div class="form-grid">
@@ -466,10 +420,6 @@ tr:hover td { background: rgba(255,255,255,0.015); }
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Client</label>
-              <input type="text" id="bugClient" placeholder="Client name"/>
-            </div>
-            <div class="form-group">
               <label class="form-label">Severity</label>
               <select id="bugSeverity">
                 <option value="critical">Critical</option>
@@ -478,8 +428,6 @@ tr:hover td { background: rgba(255,255,255,0.015); }
                 <option value="low">Low</option>
               </select>
             </div>
-          </div>
-          <div class="form-row">
             <div class="form-group">
               <label class="form-label">Status</label>
               <select id="bugStatus">
@@ -522,7 +470,6 @@ tr:hover td { background: rgba(255,255,255,0.015); }
             <thead>
               <tr>
                 <th>Title</th>
-                <th>Client</th>
                 <th>Severity</th>
                 <th>Status</th>
                 <th>Date</th>
@@ -533,53 +480,7 @@ tr:hover td { background: rgba(255,255,255,0.015); }
           </table>
         </div>
       </div>
-      </div><!-- end bugtab-log -->
-
-      <!-- Career History tab content -->
-      <div id="bugtab-career" style="display:none">
-
-        <div class="card">
-          <div class="card-header"><span class="card-title">Add a career bug entry</span></div>
-          <div class="form-grid">
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Company / Project</label>
-                <input type="text" id="careerCompany" placeholder="e.g. Acme Corp"/>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Role</label>
-                <input type="text" id="careerRole" placeholder="e.g. QA Engineer"/>
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Period</label>
-                <input type="text" id="careerPeriod" placeholder="e.g. Jan 2022 – Mar 2024"/>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Priority</label>
-                <select id="careerPriority">
-                  <option value="Critical">Critical</option>
-                  <option value="High">High</option>
-                  <option value="Medium" selected>Medium</option>
-                  <option value="Low">Low</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Highlights</label>
-              <textarea id="careerHighlights" placeholder="Describe the bug found and the impact it had on the project or product..."></textarea>
-            </div>
-            <div>
-              <button class="btn btn-primary" onclick="addCareerEntry()">+ Add entry</button>
-            </div>
-          </div>
-        </div>
-
-        <div id="careerList"></div>
-      </div><!-- end bugtab-career -->
-
-    </div><!-- end page-bugs -->
+    </div>
 
     <!-- ======== AI TIME ======== -->
     <div class="page" id="page-ai">
@@ -596,7 +497,7 @@ tr:hover td { background: rgba(255,255,255,0.015); }
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">AI Tool</label>
-              <select id="aiTool" onchange="toggleOtherTool(this.value)">
+              <select id="aiTool">
                 <option value="Claude">Claude</option>
                 <option value="ChatGPT">ChatGPT</option>
                 <option value="GitHub Copilot">GitHub Copilot</option>
@@ -604,7 +505,6 @@ tr:hover td { background: rgba(255,255,255,0.015); }
                 <option value="Cursor">Cursor</option>
                 <option value="Other">Other</option>
               </select>
-              <input type="text" id="aiToolOther" placeholder="Enter tool name" style="display:none;margin-top:8px"/>
             </div>
             <div class="form-group">
               <label class="form-label">Hours spent</label>
@@ -736,35 +636,6 @@ tr:hover td { background: rgba(255,255,255,0.015); }
       </div>
     </div>
 
-    <!-- ======== ABOUT ======== -->
-    <div class="page" id="page-about">
-      <div class="page-header">
-        <div>
-          <div class="page-title">About</div>
-          <div class="page-sub">The person behind the dashboard</div>
-        </div>
-      </div>
-
-      <div class="card" style="max-width:600px">
-        <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px">
-          <div style="width:56px;height:56px;border-radius:50%;background:var(--accent-dim);border:1px solid rgba(124,109,250,0.3);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:500;color:var(--accent);flex-shrink:0">DR</div>
-          <div>
-            <div style="font-size:17px;font-weight:500">Disha Rana</div>
-            <div style="font-size:13px;color:var(--muted);margin-top:3px">QA Engineer</div>
-          </div>
-        </div>
-        <div style="font-size:13px;color:var(--muted);line-height:1.75;margin-bottom:24px">
-          A detail-oriented QA professional passionate about software quality, test automation, and continuous learning. This dashboard is a personal tool built to track bugs, AI tool usage, and ongoing self-development — all in one place.
-        </div>
-        <div style="border-top:1px solid var(--border);padding-top:20px">
-          <a href="https://www.linkedin.com/in/disha-rana-sharma/" target="_blank" style="display:inline-flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 18px;text-decoration:none;color:var(--text);font-size:13px;transition:border-color 0.18s" onmouseover="this.style.borderColor='rgba(255,255,255,0.2)'" onmouseout="this.style.borderColor='var(--border)'">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-            Connect on LinkedIn
-          </a>
-        </div>
-      </div>
-    </div>
-
   </main>
 </div>
 
@@ -787,35 +658,16 @@ function save() {
   store.set('qa_study', studySessions);
 }
 
-// ── Toggle Sidebar ────────────────────────────────────────
-function toggleSidebar() {
-  const sidebar = document.getElementById('sidebar');
-  const btn = sidebar.querySelector('.toggle-btn');
-  sidebar.classList.toggle('collapsed');
-  btn.textContent = sidebar.classList.contains('collapsed') ? '›' : '‹';
-}
-
 // ── Navigation ───────────────────────────────────────────
 function nav(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n => {
-    const t = n.textContent.trim().toLowerCase();
-    if (
-      (page === 'overview' && t.includes('overview')) ||
-      (page === 'bugs'     && t.includes('bug')) ||
-      (page === 'ai'       && t.includes('ai')) ||
-      (page === 'study'    && t.includes('study')) ||
-      (page === 'about'    && t.includes('about'))
-    ) n.classList.add('active');
+    if (n.textContent.trim().toLowerCase().includes(page === 'overview' ? 'overview' : page === 'bugs' ? 'bug' : page === 'ai' ? 'ai' : 'study'))
+      n.classList.add('active');
   });
   renderAll();
-}
-
-// ── Toggle other tool field ───────────────────────────────
-function toggleOtherTool(val) {
-  document.getElementById('aiToolOther').style.display = val === 'Other' ? 'block' : 'none';
 }
 
 // ── Dates ────────────────────────────────────────────────
@@ -848,7 +700,6 @@ function addBug() {
   bugs.unshift({
     id: Date.now(),
     title,
-    client: document.getElementById('bugClient').value.trim(),
     severity: document.getElementById('bugSeverity').value,
     status: document.getElementById('bugStatus').value,
     notes: document.getElementById('bugNotes').value.trim(),
@@ -856,7 +707,6 @@ function addBug() {
   });
   save();
   document.getElementById('bugTitle').value = '';
-  document.getElementById('bugClient').value = '';
   document.getElementById('bugNotes').value = '';
   toast('Bug logged ✓');
   renderAll();
@@ -865,11 +715,6 @@ function addBug() {
 function deleteBug(id) {
   bugs = bugs.filter(b => b.id !== id);
   save(); renderAll();
-}
-
-function updateBugDate(id, newDate) {
-  const bug = bugs.find(b => b.id === id);
-  if (bug) { bug.date = newDate; save(); toast('Date updated ✓'); }
 }
 
 function renderBugTable() {
@@ -890,13 +735,9 @@ function renderBugTable() {
         <div style="font-weight:400">${esc(b.title)}</div>
         ${b.notes ? `<div style="font-size:11px;color:var(--muted);margin-top:2px">${esc(b.notes.substring(0,80))}${b.notes.length>80?'…':''}</div>` : ''}
       </td>
-      <td style="color:var(--muted)">${esc(b.client||'—')}</td>
       <td><span class="badge badge-${b.severity}">${cap(b.severity)}</span></td>
       <td><span class="badge badge-${b.status}">${b.status === 'progress' ? 'In Progress' : cap(b.status)}</span></td>
-      <td>
-        <input type="date" value="${b.date}" onchange="updateBugDate(${b.id}, this.value)"
-          style="background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--muted);font-family:'DM Mono',monospace;font-size:12px;padding:2px 4px;outline:none;width:130px;cursor:pointer"/>
-      </td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)">${fmtDate(b.date)}</td>
       <td><button class="btn btn-danger btn-sm" onclick="deleteBug(${b.id})">Delete</button></td>
     </tr>
   `).join('');
@@ -906,12 +747,9 @@ function renderBugTable() {
 function addAI() {
   const hours = parseFloat(document.getElementById('aiHours').value);
   if (!hours || hours <= 0) return toast('Please enter hours spent.');
-  const toolSelect = document.getElementById('aiTool').value;
-  const toolOther = document.getElementById('aiToolOther').value.trim();
-  const tool = toolSelect === 'Other' ? (toolOther || 'Other') : toolSelect;
   aiSessions.unshift({
     id: Date.now(),
-    tool,
+    tool: document.getElementById('aiTool').value,
     hours,
     category: document.getElementById('aiCategory').value,
     date: document.getElementById('aiDate').value || todayStr(),
@@ -920,9 +758,6 @@ function addAI() {
   save();
   document.getElementById('aiHours').value = '';
   document.getElementById('aiNotes').value = '';
-  document.getElementById('aiToolOther').value = '';
-  document.getElementById('aiTool').value = 'Claude';
-  document.getElementById('aiToolOther').style.display = 'none';
   toast('AI session logged ✓');
   renderAll();
 }
@@ -1097,72 +932,6 @@ function renderAll() {
   renderStudyTable();
   renderAICharts();
   renderStudyCharts();
-}
-
-// ── Career History ───────────────────────────────────────
-let careerEntries = store.get('qa_career');
-
-function addCareerEntry() {
-  const company = document.getElementById('careerCompany').value.trim();
-  const role = document.getElementById('careerRole').value.trim();
-  if (!company) return toast('Please enter a company or project name.');
-  if (!role) return toast('Please enter your role.');
-  careerEntries.unshift({
-    id: Date.now(),
-    company,
-    role,
-    period: document.getElementById('careerPeriod').value.trim(),
-    priority: document.getElementById('careerPriority').value,
-    highlights: document.getElementById('careerHighlights').value.trim(),
-  });
-  store.set('qa_career', careerEntries);
-  document.getElementById('careerCompany').value = '';
-  document.getElementById('careerRole').value = '';
-  document.getElementById('careerPeriod').value = '';
-  document.getElementById('careerHighlights').value = '';
-  toast('Career entry added ✓');
-  renderCareerList();
-}
-
-function deleteCareerEntry(id) {
-  careerEntries = careerEntries.filter(e => e.id !== id);
-  store.set('qa_career', careerEntries);
-  renderCareerList();
-}
-
-function renderCareerList() {
-  const el = document.getElementById('careerList');
-  if (!el) return;
-  if (!careerEntries.length) {
-    el.innerHTML = `<div class="empty"><div class="empty-icon">★</div>No career entries yet. Add your first one above.</div>`;
-    return;
-  }
-  const priorityColors = { Critical:'var(--red)', High:'var(--amber)', Medium:'var(--blue)', Low:'var(--green)' };
-  const priorityBg = { Critical:'var(--red-dim)', High:'var(--amber-dim)', Medium:'var(--blue-dim)', Low:'var(--green-dim)' };
-  el.innerHTML = careerEntries.map(e => `
-    <div class="card" style="margin-bottom:16px">
-      <div class="card-header" style="align-items:flex-start">
-        <div>
-          <div style="font-size:15px;font-weight:500">${esc(e.company)}</div>
-          <div style="font-size:12px;color:var(--accent);margin-top:3px">${esc(e.role)}${e.period ? ` · <span style="color:var(--muted)">${esc(e.period)}</span>` : ''}</div>
-        </div>
-        <button class="btn btn-danger btn-sm" onclick="deleteCareerEntry(${e.id})">Delete</button>
-      </div>
-      ${e.priority ? `<div style="display:inline-flex;align-items:center;gap:6px;background:${priorityBg[e.priority]||'var(--blue-dim)'};border-radius:20px;padding:4px 12px;font-size:12px;color:${priorityColors[e.priority]||'var(--blue)'};margin-bottom:12px">● ${esc(e.priority)} Priority</div>` : ''}
-      ${e.highlights ? `<div style="font-size:13px;color:var(--muted);line-height:1.75;white-space:pre-wrap">${esc(e.highlights)}</div>` : ''}
-    </div>
-  `).join('');
-}
-
-// ── Tab switching ─────────────────────────────────────────
-function switchBugTab(tab) {
-  document.getElementById('bugtab-log').style.display    = tab === 'log'    ? 'block' : 'none';
-  document.getElementById('bugtab-career').style.display = tab === 'career' ? 'block' : 'none';
-  document.getElementById('tab-log').style.borderBottomColor    = tab === 'log'    ? 'var(--accent)' : 'transparent';
-  document.getElementById('tab-career').style.borderBottomColor = tab === 'career' ? 'var(--accent)' : 'transparent';
-  document.getElementById('tab-log').style.color    = tab === 'log'    ? 'var(--text)' : 'var(--muted)';
-  document.getElementById('tab-career').style.color = tab === 'career' ? 'var(--text)' : 'var(--muted)';
-  if (tab === 'career') renderCareerList();
 }
 
 // ── Utils ────────────────────────────────────────────────
